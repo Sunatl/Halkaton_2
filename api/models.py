@@ -25,7 +25,7 @@ class Category(models.Model):
         return self.title
 
 class CustomUser(AbstractUser):
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE, null=True, blank=True)
+    grade = models.ForeignKey('Grade', on_delete=models.CASCADE, related_name='students', null=True, blank=True)    
     phone = models.CharField(max_length=15, blank=True, null=True)
     is_activated = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)

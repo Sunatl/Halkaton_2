@@ -12,9 +12,21 @@ class GradeListCreateView(ListCreateAPIView):
     search_fields = ['name', 'description']
     ordering_fields = ['name']
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        for grade in queryset:
+            grade.total_students = grade.students.count()  # Истифодаи related_name
+        return queryset
+
 class GradeRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        grade = self.get_object()
+        context['students'] = grade.customuser_set.values('username', 'email', 'phone')
+        return context
 
 class SchoolListCreateView(ListCreateAPIView):
     queryset = School.objects.all()
@@ -48,9 +60,21 @@ class CustomUserListCreateView(ListCreateAPIView):
     search_fields = ['username', 'email', 'phone']
     ordering_fields = ['username', 'email']
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return super().get_queryset()
+        return CustomUser.objects.filter(id=user.id)
+
 class CustomUserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return super().get_queryset()
+        return CustomUser.objects.filter(id=user.id)
 
 class BookListCreateView(ListCreateAPIView):
     queryset = Book.objects.all()
@@ -60,9 +84,22 @@ class BookListCreateView(ListCreateAPIView):
     search_fields = ['title', 'description']
     ordering_fields = ['price', 'stock']
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        for book in queryset:
+            book.total_stock_value = book.price * book.stock
+        return queryset
+
 class BookRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        book = self.get_object()
+        purchases = Purchases.objects.filter(book=book)
+        context['purchases'] = purchases.values('student__username', 'quantity', 'price_paid')
+        return context
 
 class WalletListCreateView(ListCreateAPIView):
     queryset = Wallet.objects.all()
