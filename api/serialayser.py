@@ -1,21 +1,5 @@
 from rest_framework import serializers
 from .models import Grade, School, Category, CustomUser, Book, Wallet, Purchases, Payment
-
-class GradeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Grade
-        fields = ['id', 'name', 'description']
-
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = ['id', 'name', 'address', 'phone_number', 'date']
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'title', 'date']
-
 from rest_framework import serializers
 from api.models import CustomUser
 
@@ -37,6 +21,25 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password": "Passwords do not match."})
         return data
 
+class GradeSerializer(serializers.ModelSerializer):
+    students = RegisterSerializer(many=True, read_only=True)  # Истифодаи related_name бевосита
+
+    class Meta:
+        model = Grade
+        fields = ['id', 'name', 'description', 'students']
+
+
+class SchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = ['id', 'name', 'address', 'phone_number', 'date']
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'title', 'date']
+
+
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         user = CustomUser.objects.create_user(**validated_data)
@@ -52,6 +55,7 @@ class LoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError({"detail": "Invalid username or password"})
         return user
+    
 
 
 
