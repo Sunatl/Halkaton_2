@@ -6,7 +6,7 @@ from .serialayser import *
 
 class GradeListCreateView(ListCreateAPIView):
     queryset = Grade.objects.all()
-    serializer_class = GradeSerializer
+    serializer_class = GradeSerializer 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['name']
     search_fields = ['name', 'description']
