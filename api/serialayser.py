@@ -16,10 +16,44 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'title', 'date']
 
-class CustomUserSerializer(serializers.ModelSerializer):
+from rest_framework import serializers
+from api.models import CustomUser
+
+from rest_framework import serializers
+from django.contrib.auth import authenticate
+from api.models import CustomUser
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    password_confirm = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'grade', 'phone', 'is_activated', 'category', 'school']
+        fields = ['username', 'email', 'phone', 'grade', 'category', 'school', 'password', 'password_confirm']
+
+    def validate(self, data):
+        if data['password'] != data['password_confirm']:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
+        return data
+
+    def create(self, validated_data):
+        validated_data.pop('password_confirm')
+        user = CustomUser.objects.create_user(**validated_data)
+        return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, style={'input_type': 'password'})
+
+    def validate(self, data):
+        user = authenticate(username=data['username'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError({"detail": "Invalid username or password"})
+        return user
+
+
 
 class BookSerializer(serializers.ModelSerializer):
     class Meta:

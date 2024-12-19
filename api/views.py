@@ -2,10 +2,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Grade, School, Category, CustomUser, Book, Wallet, Purchases, Payment
-from .serialayser import (
-    GradeSerializer, SchoolSerializer, CategorySerializer, CustomUserSerializer,
-    BookSerializer, WalletSerializer, PurchasesSerializer, PaymentSerializer
-)
+from .serialayser import *
 
 class GradeListCreateView(ListCreateAPIView):
     queryset = Grade.objects.all()
@@ -45,7 +42,7 @@ class CategoryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 class CustomUserListCreateView(ListCreateAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = RegisterSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['username', 'email', 'is_activated']
     search_fields = ['username', 'email', 'phone']
@@ -53,7 +50,7 @@ class CustomUserListCreateView(ListCreateAPIView):
 
 class CustomUserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = RegisterSerializer
 
 class BookListCreateView(ListCreateAPIView):
     queryset = Book.objects.all()
